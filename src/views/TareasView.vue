@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import tabla from '@/components/tabla.vue';
+import formulario from '@/components/formulario.vue';
 
 const datos = ref([]);
 const cargando = ref(true);
@@ -20,6 +22,9 @@ const Status = ref('') // empieza vacío
 const ProyectoSeleccionado = ref('')
 
 const proyectos = ref([])
+const opcionesProyectos = computed(() =>
+  proyectos.value ? proyectos.value.map(p => ({ value: p.id, label: p.name })) : []
+)
 
 
 
@@ -59,8 +64,9 @@ onMounted(async () => {
 
   //Nuevo Proyecto:
 
-  const crearTarea = async () => {
+  const crearTarea = async (nuevosDatos) => {
     try{
+        /*
         const nuevosDatos = {
             title : Titulo.value,
             description : Descripcion.value,
@@ -69,6 +75,7 @@ onMounted(async () => {
             status : Status.value,
             projectId: ProyectoSeleccionado.value
         }
+            */
         const res = await axios.post('https://681507e7225ff1af162aeb7e.mockapi.io/api/v1/tasks',
             nuevosDatos
         )
@@ -78,10 +85,11 @@ onMounted(async () => {
         console.log("Los datos son:",datos)
 
         // Limpiar formulario, son los valores que tendre que poner en v-for en el form html
+        /*
         nombre.value = ''
         descripcion.value = ''
         estatus.value = 'active'
-
+        */
     } catch(err){
         error.value = 'Error al crear proyecto'
     }
@@ -104,92 +112,49 @@ onMounted(async () => {
         </button>
     </div>
   <div>
-    <table class="table-auto border border-gray-300 w-full mt-8">
-        <thead>
-            <tr class="bg-gray-100">
-                <th>Id</th>
-                <th>Titulo</th>
-                <th>Descripcion</th>
-                <th>Prioridad</th>
-                <th>Fecha Limite</th>
-                <th>Status</th>
-                <th>Id Proyecto</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="tarea in tareasPaginadas" :key="tarea.id">
-                <td class="border p-2">{{tarea.id}}</td>
-                <td class="border p-2">{{ tarea.title }}</td>
-                <td class="border p-2">{{ tarea.description }}</td>
-                <td class="border p-2">{{ tarea.priority }}</td>
-                <td class="border p-2">{{ tarea.due_date }}</td>
-                <td class="border p-2">{{ tarea.status }}</td>
-                <td class="border p-2">{{ tarea.projectId }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="mt-4 gap-4 flex justify-start">
-        <!--Cuando el usuario haga clic, retrocede una página, a menos que ya esté en la primera (en ese caso, el botón estará desactivado-->
-        <button @click="currentPage--" 
-                :disabled="currentPage === 1"
-                class="bg-blue-200 px-4 py-1 rounded"
-        >
-            Anterior
-        </button>
-        <button @click="currentPage++" 
-                :disabled="currentPage * itemsPerPage >= datos.length"
-                class="bg-blue-200 px-4 py-1 rounded"
-        >
-            Siguiente
-        </button>
-    </div>
+    <tabla
+        :datos="datos"
+        :columnas="[
+            { key: 'id', label: 'Id'},
+            { key: 'title', label: 'Titulo'},
+            { key: 'description', label: 'Descripcion'},
+            { key: 'due_date', label: 'Fecha Limite'},
+            { key: 'priority', label: 'Prioridad'},
+            { key: 'status', label: 'Status'},
+            { key: 'projectId', label: 'Id Proyecto'},
+
+        ]"  
+    />
 
     <!--Modal-->
     <div v-if="mostrarModal"
         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div class=" bg-white rounded-lg shadow-lg p-8 w-116 relative">
-        <h2>Nuevo Proyecto</h2>
-
-        <div class="flex flex-col mt-3 gap-8">
-          <input class="border p-2"
-          v-model="Titulo" type="text" placeholder="Titulo">
-
-          <input class="border p-2" 
-          v-model="Descripcion" type="text" placeholder="Descripcion">
-
-          <select v-model="Prioridad" name="" id="" class="border p-2">
-            <option disabled value="">Prioridad</option>
-            <option value="active">High</option>
-            <option value="inactive">Medium</option>
-            <option value="inactive">Low</option>
-          </select>
-
-          <input class="border p-2" 
-          v-model="FechaLimite" type="date" placeholder="Fecha Limite">
-
-          <select v-model="estatus" name="" id="" class="border p-2">
-            <option disabled value="">Status</option>
-            <option value="completed">Completado</option>
-            <option value="pending">Pendiente</option>
-          </select>
-
-          <select v-model="ProyectoSeleccionado" name="" id="" class="border p-2">
-            <option  disabled value="">Proyecto asociado</option>
-            <option value="" v-for="pr in proyectos" :key="pr.id" :value="pr.id">
-                {{ pr.name }}
-            </option>
-          </select>
-        </div>
-        
-        <div class="mt-4 flex gap-4">
-          <button @click="mostrarModal = false"
-                  class="bg-blue-200 px-4 py-1 rounded"
-                  >Cancelar</button>
-          <button @click="crearTarea"
-                  class="bg-blue-200 px-4 py-1 rounded"
-                  >Crear</button>
-        </div>
-      </div>
+      <formulario
+        :campos="[
+            { key: 'title', label: 'Título', tipo: 'text', placeholder: 'Titulo de tarea' },
+            { key: 'description', label: 'Descripcion', tipo: 'text', placeholder: 'Descripcion' },
+            { key: 'priority', label: 'Prioridad', tipo: 'select', placeholder: 'Selecciona prioridad',
+                opciones: [
+                    { value: 'high', label:'Alta'},
+                    { value: 'medium', label:'Media'},
+                    { value: 'low', label:'Baja'}
+                ]
+            },
+            { key: 'due_date', label: 'Fecha límite', tipo: 'date' },
+            { key: 'status', label: 'Estado', tipo: 'select', placeholder: 'Selecciona estado',
+                opciones: [
+                    { value: 'pendiente', label: 'Pendiente' },
+                    { value: 'completada', label: 'Completada' }
+                ]
+            },
+            { key: 'projectId', label:'Proyectos asociado', tipo:'select', placeholder: 'Selecciona proyecto',
+                opciones: opcionesProyectos
+            }
+            
+        ]"
+        @submit="crearTarea"
+        @cancel="mostrarModal = false"
+      />
     </div>
     
   </div>
