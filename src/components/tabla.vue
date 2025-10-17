@@ -16,8 +16,8 @@ const datosPaginados = computed(() => {
 })
 </script>
 <template>
-<div>
-    <table class="table-auto border border-gray-300 w-full mt-8">
+<div class="overflow-x-auto">
+    <table class=" mt-8 min-w-full border border-gray-300 text-sm md:text-base">
       <thead>
         <tr class="bg-gray-100">
           <th v-for="col in columnas" :key="col.key">{{ col.label }}</th>

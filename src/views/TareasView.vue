@@ -6,6 +6,8 @@ import formulario from '@/components/formulario.vue';
 
 const datos = ref([]);
 const cargando = ref(true);
+const enviando = ref(false)
+const mensajeExito= ref('')
 const error = ref(null)
 
 const mostrarModal = ref(false)
@@ -62,54 +64,64 @@ onMounted(async () => {
   })
 
 
-  //Nuevo Proyecto:
+  //Nuevo Tarea:
 
   const crearTarea = async (nuevosDatos) => {
+    if(enviando.value)return //evita doble click
+    enviando.value = true
+    error.value = ''
+    mensajeExito.value=''
+
     try{
-        /*
-        const nuevosDatos = {
-            title : Titulo.value,
-            description : Descripcion.value,
-            priority : Prioridad.value,
-            due_date : FechaLimite.value,
-            status : Status.value,
-            projectId: ProyectoSeleccionado.value
-        }
-            */
+
+      //Validacion
+      if(!nuevosDatos.title || !nuevosDatos.projectId){
+        error.value = "Por favor completa los campos obligatorios"
+        enviando.value = false
+
+        //Borrar mensaje tras 5 segundos
+        setTimeout(() => error.value = '', 4000)
+        return
+      }
         const res = await axios.post('https://681507e7225ff1af162aeb7e.mockapi.io/api/v1/tasks',
-            nuevosDatos
-        )
+            nuevosDatos)
 
         datos.value.push(res.data)
         mostrarModal.value= false
         console.log("Los datos son:",datos)
+        mensajeExito.value= "Tarea creada correctamente"
 
-        // Limpiar formulario, son los valores que tendre que poner en v-for en el form html
-        /*
-        nombre.value = ''
-        descripcion.value = ''
-        estatus.value = 'active'
-        */
+        //Borrar mensaje tras 5 segundos
+        setTimeout(() => mensajeExito.value = '', 4000)
+
     } catch(err){
-        error.value = 'Error al crear proyecto'
+        error.value = 'Error al crear tarea'
+
+        //Borrar mensaje tras 5 segundos
+        setTimeout(() => error.value = '', 4000)
+    }finally{
+      enviando.value = false
     }
   }
   
 </script>   
 
 <template>
-    <div class="flex items-center justify-between" >
+    <div class="flex items-center md:flex-row items-center justify-between">
          <h1 class="text-xl md:text-2xl lg:text-4xl font-bold mb-2">Listado de Tareas</h1>
-         <router-link to="/">
-            <button class="bg-blue-200 px-4 py-1 rounded"
+
+         <div class="lg:flex flex-row gap-10 sm:flex flex-col items-center justify-between gap-2">
+            <router-link to="/">
+                <button  class="bg-blue-200 px-4 py-1 rounded w-full sm:w-auto"
+                  @click="mostrarModal = true">
+                  Lista de Proyectos
+                </button>
+            </router-link>
+            <button class="bg-blue-200 px-4 py-1 rounded w-full sm:w-auto"
               @click="mostrarModal = true">
-              Lista de Proyectos
+            Nueva Tarea
             </button>
-         </router-link>
-         <button class="bg-blue-200 px-4 py-1 rounded"
-          @click="mostrarModal = true">
-         Nueva Tarea
-        </button>
+        </div>  
     </div>
   <div>
     <tabla
@@ -126,9 +138,22 @@ onMounted(async () => {
         ]"  
     />
 
+    <!-- Mensajes globales -->
+     <Transition name="fade">
+        <div v-if="error" class="bg-red-100 text-red-700 p-2 rounded mt-2">
+          {{ error }}
+        </div>
+     </Transition>
+    
+     <Transition name="fade">
+        <div v-if="mensajeExito" class="bg-red-100 text-red-700 p-2 rounded mt-2">
+          {{ mensajeExito }}
+        </div>
+     </Transition>
+
     <!--Modal-->
     <div v-if="mostrarModal"
-        class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <formulario
         :campos="[
             { key: 'title', label: 'Título', tipo: 'text', placeholder: 'Titulo de tarea' },
@@ -154,8 +179,22 @@ onMounted(async () => {
         ]"
         @submit="crearTarea"
         @cancel="mostrarModal = false"
+        :disabled="enviando" 
       />
     </div>
     
   </div>
 </template>
+<style>
+.fade-enter-active,
+.fade-leave-active{
+  transition: opacity 0.5s ease, transform 0.8s ease;
+  
+}
+
+.fade-enter-from,
+.fade-leave-to{
+  opacity: 0;
+  transform: translateY(100px);
+}
+</style>
