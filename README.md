@@ -1,44 +1,55 @@
-# prueba-tecnica-desarrollador-frontend-vue-js
+# Proyecto de Gestión de Proyectos y Tareas
 
-This template should help get you started developing with Vue 3 in Vite.
+Este proyecto es una aplicación web para gestionar proyectos y sus tareas asociadas, desarrollada con **Vue 3**, siguiendo buenas prácticas de componentes reutilizables y diseño responsivo.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- **Framework y librerías:**
+  - Vue 3 con Composition API
+  - Vue Router
+  - Pinia (o Vuex)
+  - Axios
+  - TailwindCSS o Bootstrap
+  - Vite como bundler
 
-## Recommended Browser Setup
+- **UI/UX**
+  - Diseño responsivo (móvil y desktop)
+  - Buena separación de componentes y rutas
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Customize configuration
+### Vistas y Rutas
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Vista de Proyectos**
+  - Tabla con listado de proyectos
+  - Filtros: estado (activo/inactivo)
+  - Botón para crear nuevo proyecto
+  - Modal o formulario en página para crear proyecto
 
-## Project Setup
+- **Vista de Tareas**
+  - Tabla de tareas por proyecto (usando `project_id`)
+  - Filtros dinámicos: estado (pendiente, en progreso, hecho), prioridad (alta, media, baja)
+  - Botón para crear nueva tarea
+  - Modal o formulario en página para crear/editar tarea
 
-```sh
-npm install
-```
+### 2. Formularios
+- Formularios reactivos con validaciones claras
+- Mensajes de error amigables
+- Prevención de envíos múltiples
 
-### Compile and Hot-Reload for Development
+### 3. Componentes
+- Componente reutilizable de tabla
+- Componente de filtros dinámicos
+- Componente de formulario
 
-```sh
-npm run dev
-```
+### 4. Integración con API
+- Endpoints consumidos:
+  - [Proyectos](https://681507e7225ff1af162aeb7e.mockapi.io/api/v1/projects)
+  - [Tareas](https://681507e7225ff1af162aeb7e.mockapi.io/api/v1/tasks)
+- Uso de `axios` para llamadas
+- Se muestran mensajes de error si las peticiones fallan
 
-### Compile and Minify for Production
+---
 
-```sh
-npm run build
-```
 
-### Lint with [ESLint](https://eslint.org/)
 
-```sh
-npm run lint
-```
